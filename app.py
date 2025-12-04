@@ -3,6 +3,8 @@ import pandas as pd
 import io
 import time
 from datetime import datetime
+from PIL import Image
+import base64
 
 # Set page config
 st.set_page_config(
@@ -11,15 +13,53 @@ st.set_page_config(
     layout="wide"
 )
 
-# Simple CSS
+# Simple CSS with logo positioning
 st.markdown("""
 <style>
+    /* Header container */
+    .header-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 10px 0;
+        border-bottom: 2px solid #E5E7EB;
+    }
+    
+    /* Logo styling */
+    .logo-container {
+        margin-right: 20px;
+        padding: 5px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .logo-img {
+        max-height: 60px;
+        width: auto;
+        object-fit: contain;
+    }
+    
+    /* Title styling */
+    .title-container {
+        flex-grow: 1;
+    }
+    
     .main-title {
         font-size: 2rem;
         color: #1E3A8A;
-        text-align: center;
-        margin-bottom: 1rem;
+        margin: 0;
+        padding: 0;
     }
+    
+    .subtitle {
+        font-size: 1rem;
+        color: #6B7280;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Content sections */
     .upload-box {
         border: 2px dashed #3B82F6;
         border-radius: 10px;
@@ -28,12 +68,18 @@ st.markdown("""
         background-color: #F8FAFC;
         margin: 20px 0;
     }
+    
     .search-box {
         background-color: #F3F4F6;
         padding: 20px;
         border-radius: 10px;
         margin: 20px 0;
     }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -47,10 +93,37 @@ def format_record(record, df_columns):
         text += f"{col}: {value}\n"
     return text.strip()  # Remove extra newline at the end
 
+def load_logo():
+    """Load logo from image file"""
+    try:
+        # Open the logo image
+        logo = Image.open("C:\Users\ADMIN\Desktop\bablu\WhatsApp Image 2025-12-04 at 19.31.40_78cd7018.jpg")
+        
+        # Resize while maintaining aspect ratio
+        max_size = (200, 80)  # Max width 200px, max height 80px
+        logo.thumbnail(max_size, Image.Resampling.LANCZOS)
+        
+        return logo
+    except Exception as e:
+        st.warning(f"Logo not found: {str(e)}")
+        return None
+
 def main():
-    # Title
-    st.markdown('<h1 class="main-title">Deadline Dominators</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align: center; color: #6B7280;">Upload any data file and search through it</p>', unsafe_allow_html=True)
+    # Create header with logo and title
+    col1, col2 = st.columns([1, 4])
+    
+    with col1:
+        # Load and display logo
+        logo = load_logo()
+        if logo:
+            st.image(logo, use_container_width=True)
+        else:
+            # Placeholder if logo not found
+            st.markdown('<div class="logo-container" style="height: 60px; display: flex; align-items: center; justify-content: center; color: #6B7280; font-style: italic;">Logo</div>', unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown('<h1 class="main-title">Deadline Dominators</h1>', unsafe_allow_html=True)
+        st.markdown('<p class="subtitle">Upload any data file and search through it</p>', unsafe_allow_html=True)
     
     # Initialize session state
     if 'df' not in st.session_state:
